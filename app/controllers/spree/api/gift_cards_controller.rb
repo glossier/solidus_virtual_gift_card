@@ -8,13 +8,13 @@ class Spree::Api::GiftCardsController < Spree::Api::BaseController
     elsif @gift_card.redeem(@current_api_user)
       render status: :created, json: {}
     else
-      render status: 422, json: redeem_fail_response
+      render status: :unprocessable_entity, json: redeem_fail_response
     end
   end
 
   def code_exists
     if Spree::VirtualGiftCard.active_by_redemption_code(params[:redemption_code])
-      head :found
+      head :ok
     else
       head :not_found
     end
