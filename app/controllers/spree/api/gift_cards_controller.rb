@@ -1,5 +1,7 @@
 class Spree::Api::GiftCardsController < Spree::Api::BaseController
 
+  skip_before_action :authorize_for_order
+
   def redeem
     @gift_card = Spree::VirtualGiftCard.active_by_redemption_code(redemption_code)
 
