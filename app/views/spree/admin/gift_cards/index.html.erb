@@ -14,7 +14,7 @@
         <th class="align-center">Amount</th>
         <th class="align-center">Purchased by</th>
         <th class="align-center">Purchased at</th>
-        <th class="align-center">Recipient Email</th>
+        <th class="align-center">Recipient</th>
         <th class="align-center">Date Sent</th>
         <th class="align-center">Redeemed by</th>
         <th class="align-center">Redeemed at</th>
@@ -24,11 +24,25 @@
     <tbody>
       <% @gift_cards.each do |gift_card| %>
         <tr>
-          <td class="align-center"><%= gift_card.formatted_redemption_code %></td>
-          <td class="align-center"><%= number_to_currency(gift_card.amount) %></td>
-          <td class="align-center"><%= link_to "#{gift_card.purchaser.email}", edit_admin_user_path(gift_card.purchaser) %></td>
+          <td class="align-center">
+            <%= link_to gift_card.formatted_redemption_code,edit_admin_order_gift_card_path(gift_card.order, gift_card) %>
+          </td>
+          <td class="align-center"><%= link_to number_to_currency(gift_card.amount), edit_admin_order_path(gift_card.order) %></td>
+          <td class="align-center">
+            <% if gift_card.purchaser %>
+              <%= link_to "#{gift_card.purchaser_name}", edit_admin_user_path(gift_card.purchaser) %>
+            <% else %>
+              <%= "#{gift_card.purchaser_name}" %>
+            <% end %>
+          </td>
           <td class="align-center"><%= gift_card.formatted_created_at %></td>
-          <td class="align-center"><%= gift_card.recipient_email %></td>
+            <td class="align-center">
+              <% if gift_card.recipient_email %>
+                <%= gift_card.recipient_email %>
+              <% else %>
+                <%= gift_card.recipient_name %>
+              <% end %>
+            </td>
           <td class="align-center"><%= gift_card.formatted_sent_at || gift_card.formatted_send_email_at %></td>
           <% if gift_card.redeemed? %>
             <td class="align-center"><%= link_to "#{gift_card.redeemer.email}", edit_admin_user_path(gift_card.redeemer) %></td>

@@ -26,6 +26,7 @@ Spree::Core::Engine.routes.draw do
     resources :gift_cards, only: [] do
       collection do
         post :redeem
+        get :code_exists
       end
     end
   end

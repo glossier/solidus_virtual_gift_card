@@ -35,6 +35,16 @@ describe Spree::Api::GiftCardsController do
 
       let(:parsed_response) { HashWithIndifferentAccess.new(JSON.parse(response.body)) }
 
+      context "has an order token" do
+        it 'should be able to go through the authentication' do
+          parameters[:order_token] = 'AAAABBBB'
+
+          subject
+
+          expect(subject.status).to eq 201
+        end
+      end
+
       context "given an invalid gift card redemption code" do
         before { subject }
 
