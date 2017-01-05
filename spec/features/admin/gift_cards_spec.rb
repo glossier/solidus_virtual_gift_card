@@ -44,6 +44,7 @@ describe 'Gift Cards', :type => :feature, :js => true do
 
   describe "lookup a gift card" do
     let(:gift_card) { create(:redeemable_virtual_gift_card,
+                             purchaser_name: "Albus Dumbledore",
                              recipient_name: "Daeva",
                              recipient_email: 'dog@example.com',
                             )
@@ -57,7 +58,7 @@ describe 'Gift Cards', :type => :feature, :js => true do
       fill_in "q[recipient_email_cont]", with: gift_card.recipient_email
       click_on "Lookup Gift Card"
 
-      expect(page).to have_content(gift_card.purchaser.email)
+      expect(page).to have_content(gift_card.purchaser_name)
       expect(page).to_not have_content(other_gift_card.purchaser.email)
     end
 
@@ -67,7 +68,7 @@ describe 'Gift Cards', :type => :feature, :js => true do
       fill_in "q[line_item_order_number_cont]", with: order.number
       click_on "Lookup Gift Card"
 
-      expect(page).to have_content(gift_card.purchaser.email)
+      expect(page).to have_content(gift_card.purchaser_name)
       expect(page).to_not have_content(other_gift_card.purchaser.email)
     end
   end
