@@ -24,7 +24,9 @@
     <tbody>
       <% @gift_cards.each do |gift_card| %>
         <tr>
-          <td class="align-center"><%= gift_card.formatted_redemption_code %></td>
+          <td class="align-center">
+            <%= link_to gift_card.formatted_redemption_code,edit_admin_order_gift_card_path(gift_card.order, gift_card) %>
+          </td>
           <td class="align-center"><%= link_to number_to_currency(gift_card.amount), edit_admin_order_path(gift_card.order) %></td>
           <td class="align-center">
             <% if gift_card.purchaser %>
