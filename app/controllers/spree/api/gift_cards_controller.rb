@@ -1,13 +1,10 @@
 class Spree::Api::GiftCardsController < Spree::Api::BaseController
-
   skip_before_action :authorize_for_order
 
   def redeem
-    @gift_card = Spree::VirtualGiftCard.active_by_redemption_code(redemption_code)
-
-    if !@gift_card
+    if gift_card.nil?
       render status: :not_found, json: redeem_fail_response
-    elsif @gift_card.redeem(@current_api_user)
+    elsif gift_card.redeem(@current_api_user)
       render status: :created, json: {}
     else
       render status: :unprocessable_entity, json: redeem_fail_response
@@ -15,7 +12,7 @@ class Spree::Api::GiftCardsController < Spree::Api::BaseController
   end
 
   def code_exists
-    if Spree::VirtualGiftCard.active_by_redemption_code(params[:redemption_code])
+    if gift_card
       head :ok
     else
       head :not_found
@@ -23,6 +20,11 @@ class Spree::Api::GiftCardsController < Spree::Api::BaseController
   end
 
   private
+
+  def gift_card
+    @gift_card = Spree::VirtualGiftCard.active_by_redemption_code(redemption_code) ||
+      Spree::GiftCardBarcode.active(redemption_code)
+  end
 
   def redeem_fail_response
    {
