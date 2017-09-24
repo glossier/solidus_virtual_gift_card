@@ -23,7 +23,7 @@ class Spree::Api::GiftCardsController < Spree::Api::BaseController
 
   def gift_card
     @gift_card = Spree::VirtualGiftCard.active_by_redemption_code(redemption_code) ||
-      Spree::GiftCardBarcode.active(redemption_code)
+      Spree::GiftCardBarcode.active_by_redemption_code(redemption_code)
   end
 
   def redeem_fail_response

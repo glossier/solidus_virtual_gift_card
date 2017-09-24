@@ -28,13 +28,12 @@ module Spree
     def store_credit_category
       Spree::StoreCreditCategory.gift_card
     end
-    
 
     def redeemed?
       redeemed_at.present?
     end
 
-    def self.active(number)
+    def self.active_by_redemption_code(number)
       Spree::GiftCardBarcode.unredeemed.find_by(number: number)
     end
 
