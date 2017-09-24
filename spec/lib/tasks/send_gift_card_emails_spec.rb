@@ -14,7 +14,7 @@ describe "solidus_virtual_gift_card:send_current_emails" do
 
   context "with gift card sent today" do
     it "sends emails to be sent today" do
-      gift_card = Spree::VirtualGiftCard.create!(amount: 50, send_email_at: Date.today, redeemable: true, purchaser: purchaser)
+      gift_card = Spree::VirtualGiftCard.create!(amount: 50, send_email_at: Date.today, redeemable: true, purchaser: purchaser, line_item: create(:line_item))
       expect(Spree::GiftCardMailer).to receive(:gift_card_email).with(gift_card).and_return(double(deliver_later: true))
       subject
     end
