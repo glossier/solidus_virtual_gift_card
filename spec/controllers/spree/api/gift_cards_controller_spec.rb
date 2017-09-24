@@ -7,7 +7,7 @@ describe Spree::Api::GiftCardsController do
 
   describe "POST redeem" do
     let(:gift_card) { create(:redeemable_virtual_gift_card) }
-    let(:barcode) { create(:gift_card_barcode) }
+    let(:barcode) { create(:redeemable_gift_card_barcode) }
 
     let(:parameters) do
       {
@@ -15,7 +15,7 @@ describe Spree::Api::GiftCardsController do
       }
     end
 
-    subject { spree_post :redeem, parameters, { format: :json } }    
+    subject { spree_post :redeem, parameters, { format: :json } }
 
     context "the user is not logged in" do
 
@@ -95,9 +95,23 @@ describe Spree::Api::GiftCardsController do
         end
       end
 
-      context "there is a valid barcode number" do
+      context "given a valid physical barcode number" do
+        subject { spree_post :redeem, { redemption_code: barcode.number }, { format: :json } }
+
         it 'finds the barcode' do
-          spree_post :redeem, { redemption_code: barcode.number }, { format: :json }
+          subject
+          expect(assigns(:gift_card)).to eq barcode
+        end
+
+        it 'redeems the gift card with the barcode' do
+          allow(Spree::GiftCardBarcode).to receive(:active_by_redemption_code).and_return(barcode)
+          expect(barcode).to receive(:redeem).with(api_user)
+          subject
+        end
+
+        it "returns a 201" do
+          subject
+          expect(subject.status).to eq 201
         end
       end
     end

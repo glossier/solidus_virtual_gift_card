@@ -25,13 +25,13 @@ FactoryGirl.define do
     end
   end
 
-  factory :gift_card_barcode, class: Spree::GiftCardBarcode do
-    association :virtual_gift_card, factory: :virtual_gift_card
+  factory :redeemable_gift_card_barcode, class: Spree::GiftCardBarcode do
+    association :virtual_gift_card, factory: :redeemable_virtual_gift_card
     amount 25.0
-    
+
     before(:create) do |bar_code, evaluator|
       bar_code.number = (0...16).map { (65 + rand(26)).chr }.join
     end
   end
-  
+
 end
