@@ -25,6 +25,12 @@ FactoryGirl.define do
     end
   end
 
+  factory :physical_gift_card, class: Spree::VirtualGiftCard, parent: :virtual_gift_card do
+    after(:create) do |gift_card|
+      gift_card.line_item.product.update_attributes(slug: 'physical-gift-card')
+    end
+  end
+
   factory :redeemable_gift_card_barcode, class: Spree::GiftCardBarcode do
     association :virtual_gift_card, factory: :redeemable_virtual_gift_card
     amount 25.0
