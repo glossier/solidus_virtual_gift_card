@@ -36,6 +36,14 @@ module Spree
           end
         end
       end
+
+      def non_gift_card_items
+        line_items.reject { |li| li.gift_card? }
+      end
+
+      def amount_without_gift_cards
+        non_gift_card_items.map(&:amount).sum
+      end
     end
   end
 end

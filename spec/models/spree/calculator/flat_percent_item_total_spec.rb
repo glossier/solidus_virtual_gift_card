@@ -5,7 +5,7 @@ describe Spree::Calculator::FlatPercentItemTotal, type: :model do
     promotion = Spree::Promotion.create!(name: "10% discount", apply_automatically: true)
 
     calculator = Spree::Calculator::FlatPercentItemTotal.new
-    calculator.preferred_flat_percent = 50
+    calculator.preferred_flat_percent = 10
 
     action = Spree::Promotion::Actions::CreateAdjustment.create
     action.calculator = calculator
