@@ -6,6 +6,9 @@ module Spree
     belongs_to :virtual_gift_card, class_name: 'Spree::VirtualGiftCard'
     belongs_to :order, class_name: 'Spree::Order'
 
+    delegate :store_credit, :purchaser, :redeemer, to: :virtual_gift_card, allow_nil: true
+    delegate :line_items, to: :order
+
     scope :unredeemed, -> { where(redeemed_at: nil) }
 
     self.whitelisted_ransackable_attributes = %w[number]
@@ -39,9 +42,9 @@ module Spree
 
     private
 
-    def redeem_associated_gift_card(redeemer)
+    def redeem_associated_gift_card(user)
       return if virtual_gift_card.nil?
-      virtual_gift_card.update_attributes(redeemed_at: Time.now, redeemer: redeemer)
+      virtual_gift_card.update_attributes(redeemed_at: Time.now, redeemer: user)
     end
   end
 end
