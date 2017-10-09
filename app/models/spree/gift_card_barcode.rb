@@ -23,7 +23,7 @@ module Spree
 
     def redeem(user)
       return if redeemed?
-      user.store_credits.create!(amount: amount, category: store_credit_category, currency: virtual_gift_card&.currency, created_by: user)
+      user.store_credits.create!(amount: amount, category: store_credit_category, currency: currency, created_by: user)
       redeem_associated_gift_card(user)
       update_attributes(redeemed_at: Time.now)
     end
@@ -45,6 +45,10 @@ module Spree
     def redeem_associated_gift_card(user)
       return if virtual_gift_card.nil?
       virtual_gift_card.update_attributes(redeemed_at: Time.now, redeemer: user)
+    end
+
+    def currency
+      virtual_gift_card.present? ? virtual_gift_card.currency : Spree::Store.default.default_currency
     end
   end
 end
