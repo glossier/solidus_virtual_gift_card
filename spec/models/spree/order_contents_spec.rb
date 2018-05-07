@@ -223,45 +223,45 @@ describe Spree::OrderContents do
         end
       end
     end
+  end
 
-    describe "#update_cart" do
-      subject { order_contents.update_cart(update_params) }
+  describe "#update_cart" do
+    subject { order_contents.update_cart(update_params) }
 
-      let(:update_params) do
-        {
-          line_items_attributes: { id: @line_item.id, quantity: quantity, options: {}}
-        }
+    let(:update_params) do
+      {
+        line_items_attributes: { id: @line_item.id, quantity: quantity, options: {}}
+      }
+    end
+
+    context "for a gift card line item" do
+      before do
+        variant.product.update_attributes(gift_card: true)
+        @line_item = order_contents.add(variant, 2, options)
       end
 
-      context "for a gift card line item" do
-        before do
-          variant.product.update_attributes(gift_card: true)
-          @line_item = order_contents.add(variant, 2, options)
+      context "line item is being updated to a higher quantity" do
+        let(:quantity) { "4" }
+
+        it "creates new gift cards" do
+          expect { subject }.to change { Spree::VirtualGiftCard.count }.by(2)
         end
+      end
 
-        context "line item is being updated to a higher quantity" do
-          let(:quantity) { "4" }
+      context "line item is being updated to a lower quantity" do
+        context "one lower" do
+          let(:quantity) { "1" }
 
-          it "creates new gift cards" do
-            expect { subject }.to change { Spree::VirtualGiftCard.count }.by(2)
+          it "destroys gift cards" do
+            expect { subject }.to change { Spree::VirtualGiftCard.count }.by(-1)
           end
         end
 
-        context "line item is being updated to a lower quantity" do
-          context "one lower" do
-            let(:quantity) { "1" }
+        context "multiple lower" do
+          let(:quantity) { "0" }
 
-            it "destroys gift cards" do
-              expect { subject }.to change { Spree::VirtualGiftCard.count }.by(-1)
-            end
-          end
-
-          context "multiple lower" do
-            let(:quantity) { "0" }
-
-            it "destroys gift cards" do
-              expect { subject }.to change { Spree::VirtualGiftCard.count }.by(-2)
-            end
+          it "destroys gift cards" do
+            expect { subject }.to change { Spree::VirtualGiftCard.count }.by(-2)
           end
         end
       end
