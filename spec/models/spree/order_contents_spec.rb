@@ -266,5 +266,26 @@ describe Spree::OrderContents do
         end
       end
     end
+
+    context "when adding more than one gift-card simultaneously" do
+      let(:variant2) { create(:variant) }
+
+      let(:update_params) do
+        {
+          line_items_attributes: [
+            { variant_id: variant.id, quantity: quantity, options: {} },
+            { variant_id: variant2.id, quantity: quantity, options: {} }
+          ]
+        }
+      end
+
+      before do
+        [variant, variant2].each { |v| v.product.update_attributes(gift_card: true) }
+      end
+
+      it "adds multiple line-items" do
+        expect { subject }.to change { order.line_items.count }.by(2)
+      end
+    end
   end
 end
