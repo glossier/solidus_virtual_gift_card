@@ -223,47 +223,68 @@ describe Spree::OrderContents do
         end
       end
     end
+  end
 
-    describe "#update_cart" do
-      subject { order_contents.update_cart(update_params) }
+  describe "#update_cart" do
+    subject { order_contents.update_cart(update_params) }
+
+    let(:update_params) do
+      {
+        line_items_attributes: { id: @line_item.id, quantity: quantity, options: {}}
+      }
+    end
+
+    context "for a gift card line item" do
+      before do
+        variant.product.update_attributes(gift_card: true)
+        @line_item = order_contents.add(variant, 2, options)
+      end
+
+      context "line item is being updated to a higher quantity" do
+        let(:quantity) { "4" }
+
+        it "creates new gift cards" do
+          expect { subject }.to change { Spree::VirtualGiftCard.count }.by(2)
+        end
+      end
+
+      context "line item is being updated to a lower quantity" do
+        context "one lower" do
+          let(:quantity) { "1" }
+
+          it "destroys gift cards" do
+            expect { subject }.to change { Spree::VirtualGiftCard.count }.by(-1)
+          end
+        end
+
+        context "multiple lower" do
+          let(:quantity) { "0" }
+
+          it "destroys gift cards" do
+            expect { subject }.to change { Spree::VirtualGiftCard.count }.by(-2)
+          end
+        end
+      end
+    end
+
+    context "when adding more than one gift-card simultaneously" do
+      let(:variant2) { create(:variant) }
 
       let(:update_params) do
         {
-          line_items_attributes: { id: @line_item.id, quantity: quantity, options: {}}
+          line_items_attributes: [
+            { variant_id: variant.id, quantity: quantity, options: {} },
+            { variant_id: variant2.id, quantity: quantity, options: {} }
+          ]
         }
       end
 
-      context "for a gift card line item" do
-        before do
-          variant.product.update_attributes(gift_card: true)
-          @line_item = order_contents.add(variant, 2, options)
-        end
+      before do
+        [variant, variant2].each { |v| v.product.update_attributes(gift_card: true) }
+      end
 
-        context "line item is being updated to a higher quantity" do
-          let(:quantity) { "4" }
-
-          it "creates new gift cards" do
-            expect { subject }.to change { Spree::VirtualGiftCard.count }.by(2)
-          end
-        end
-
-        context "line item is being updated to a lower quantity" do
-          context "one lower" do
-            let(:quantity) { "1" }
-
-            it "destroys gift cards" do
-              expect { subject }.to change { Spree::VirtualGiftCard.count }.by(-1)
-            end
-          end
-
-          context "multiple lower" do
-            let(:quantity) { "0" }
-
-            it "destroys gift cards" do
-              expect { subject }.to change { Spree::VirtualGiftCard.count }.by(-2)
-            end
-          end
-        end
+      it "adds multiple line-items" do
+        expect { subject }.to change { order.line_items.count }.by(2)
       end
     end
   end

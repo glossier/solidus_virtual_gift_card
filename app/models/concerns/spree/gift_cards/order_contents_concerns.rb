@@ -23,10 +23,18 @@ module Spree
       def update_cart(params)
         update_success = super(params)
 
-        if update_success && params[:line_items_attributes]
-          line_item = Spree::LineItem.find_by(id: params[:line_items_attributes][:id])
-          new_quantity = params[:line_items_attributes][:quantity].to_i
-          update_gift_cards(line_item, new_quantity)
+        if update_success && line_item_attributes = params[:line_items_attributes]
+
+          [line_item_attributes].flatten.each do |attrs|
+            new_quantity = attrs[:quantity].to_i
+            line_item = if attrs.key?(:id)
+                          order.line_items.find_by(id: attrs[:id])
+                        elsif attrs.key?(:variant_id)
+                          order.line_items.find_by(variant_id: attrs[:variant_id])
+                        end
+
+            update_gift_cards(line_item, new_quantity)
+          end
         end
 
         update_success
