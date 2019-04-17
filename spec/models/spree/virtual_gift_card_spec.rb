@@ -327,4 +327,22 @@ describe Spree::VirtualGiftCard do
       expect { subject }.to change { gift_card.sent_at }
     end
   end
+
+  describe "email notifications" do
+    it 'sends an email for virtual gift card' do
+      virtual_gift_card = create(:virtual_gift_card)
+
+      expect {
+        virtual_gift_card.send_email
+      }.to change{ ActionMailer::Base.deliveries.count }.by(1)
+    end
+
+    it 'does not send an email for physical gift card' do
+      physical_gift_card = create(:physical_gift_card)
+
+      expect {
+        physical_gift_card.send_email
+      }.not_to change{ ActionMailer::Base.deliveries.count }
+    end
+  end
 end

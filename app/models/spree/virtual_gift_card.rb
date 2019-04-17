@@ -17,7 +17,7 @@ class Spree::VirtualGiftCard < Spree::Base
   scope :purchased, -> { where(redeemable: true) }
 
   self.whitelisted_ransackable_associations = %w[line_item order]
-  self.whitelisted_ransackable_attributes = %w[redemption_code recipient_email sent_at send_email_at]
+  self.whitelisted_ransackable_attributes = %w[redemption_code recipient_email sent_at send_email_at barcode]
 
   ransacker :sent_at do
     Arel.sql('date(sent_at)')
@@ -109,7 +109,7 @@ class Spree::VirtualGiftCard < Spree::Base
   end
 
   def store_credit_category
-    Spree::StoreCreditCategory.where(name: Spree::StoreCreditCategory::GIFT_CARD_CATEGORY_NAME).first
+    Spree::StoreCreditCategory.gift_card
   end
 
   def self.active_by_redemption_code(redemption_code)
@@ -117,8 +117,14 @@ class Spree::VirtualGiftCard < Spree::Base
   end
 
   def send_email
+    return if physical?
+
     Spree::GiftCardMailer.gift_card_email(self).deliver_later
     update_attributes!(sent_at: DateTime.now)
+  end
+
+  def physical?
+    line_item.product.slug.include? 'physical-gift-card'
   end
 
   private

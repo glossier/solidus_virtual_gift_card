@@ -1,4 +1,10 @@
 Spree::Core::Engine.routes.draw do
+  resources :gift_cards, only: [] do
+    collection do
+      post :redeem
+    end
+  end
+
   namespace :admin do
     resources :users, only: [] do
       resources :gift_cards, only: [] do
